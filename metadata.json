@@ -1,0 +1,6 @@
+{
+  "name": "Ministry of Revenue SOC - Centralized Security Event Monitoring and Incident Detection System",
+  "description": "Centralized Security Event Monitoring and Incident Detection System for the Ministry of Revenue. Provides real-time event visibility, threat detection, incident investigation, log source monitoring, and security reporting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
