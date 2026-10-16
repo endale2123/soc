@@ -18,6 +18,8 @@ import {
   Filter
 } from 'lucide-react';
 import {
+  AreaChart,
+  Area,
   LineChart,
   Line,
   XAxis,
@@ -262,7 +264,21 @@ export const DashboardPage: React.FC = () => {
 
           <div className="w-full h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={metrics.eventsOverTime} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={metrics.eventsOverTime} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="mountainTotal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0077c8" stopOpacity={0.65} />
+                    <stop offset="95%" stopColor="#0077c8" stopOpacity={0.05} />
+                  </linearGradient>
+                  <linearGradient id="mountainCritical" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.7} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0.05} />
+                  </linearGradient>
+                  <linearGradient id="mountainHigh" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.7} />
+                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis dataKey="time" stroke="#64748b" fontSize={11} tickLine={false} />
                 <YAxis
@@ -291,42 +307,42 @@ export const DashboardPage: React.FC = () => {
                   itemStyle={{ padding: '2px 0' }}
                 />
                 {visibleSeries.total && (
-                  <Line
+                  <Area
                     yAxisId="left"
                     type="monotone"
                     dataKey="total"
                     name="Total Events"
                     stroke="#0077c8"
                     strokeWidth={2.5}
-                    dot={{ fill: '#0077c8', r: 3 }}
-                    activeDot={{ r: 6 }}
+                    fillOpacity={1}
+                    fill="url(#mountainTotal)"
                   />
                 )}
                 {visibleSeries.critical && (
-                  <Line
+                  <Area
                     yAxisId="right"
                     type="monotone"
                     dataKey="critical"
                     name="Critical Events"
                     stroke="#ef4444"
                     strokeWidth={2}
-                    dot={{ fill: '#ef4444', r: 3 }}
-                    activeDot={{ r: 5 }}
+                    fillOpacity={1}
+                    fill="url(#mountainCritical)"
                   />
                 )}
                 {visibleSeries.high && (
-                  <Line
+                  <Area
                     yAxisId="right"
                     type="monotone"
                     dataKey="high"
                     name="High Events"
                     stroke="#f59e0b"
                     strokeWidth={2}
-                    dot={{ fill: '#f59e0b', r: 3 }}
-                    activeDot={{ r: 5 }}
+                    fillOpacity={1}
+                    fill="url(#mountainHigh)"
                   />
                 )}
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>

@@ -52,30 +52,15 @@ export const Shell: React.FC = () => {
 
       {/* Main Container Area with dynamic left margin matching sidebar width */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
+        className={`flex-1 flex flex-col transition-all duration-300 ease-in-out print:ml-0 print:m-0 print:p-0 ${
           collapsed ? 'ml-18' : 'ml-64'
         }`}
       >
         {/* Top Header */}
         <Header />
 
-        {/* Section 18 Mandatory Demonstration Banner - Ministry of Revenues royal blue & gold styling */}
-        <div className="print:hidden bg-gradient-to-r from-[#004e8c] via-[#0077c8] to-[#005a9e] border-b border-[#0066b3] px-4 py-1.5 flex items-center justify-between text-xs text-white shadow-xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 border border-white/60 animate-pulse shrink-0" />
-            <span className="font-semibold tracking-wide text-white">
-              DEMONSTRATION MODE — All displayed security data is simulated.
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-3 text-[11px] text-sky-100 font-mono">
-            <span>Environment: Isolated SOC Prototype</span>
-            <span aria-hidden="true" className="text-sky-300">·</span>
-            <span>Target: <strong className="text-white font-bold">Ministry of Revenues (የገቢዎች ሚኒስቴር)</strong></span>
-          </div>
-        </div>
-
         {/* Main Page Viewport */}
-        <main className="flex-1 p-4 lg:p-6 max-w-[1600px] w-full mx-auto">
+        <main className="flex-1 p-4 lg:p-6 max-w-[1600px] w-full mx-auto print:p-0 print:m-0 print:max-w-none">
           {renderActivePage()}
         </main>
       </div>

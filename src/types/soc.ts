@@ -109,6 +109,7 @@ export interface Incident {
   title: string;
   severity: Severity;
   status: IncidentStatus;
+  category?: EventCategory | string;
   detectionTime: string;
   lastUpdated: string;
   affectedAssets: string[];
@@ -121,6 +122,13 @@ export interface Incident {
   timeline: IncidentTimelineItem[];
   notes: InvestigationNote[];
   responseActions: ResponseAction[];
+  recommendedSteps?: string[];
+  resolutionHistory?: {
+    timestamp: string;
+    action: string;
+    performedBy: string;
+    details: string;
+  }[];
   closedResolution?: {
     resolvedAt: string;
     resolvedBy: string;
@@ -143,8 +151,10 @@ export interface Alert {
   severity: Severity;
   firstDetected: string;
   lastDetected: string;
+  detectionTimestamp?: string;
   sourceSystem: string;
   affectedAsset: string;
+  sourceIp?: string;
   relatedIncidentId?: string;
   status: AlertStatus;
   evidence: AlertEvidenceField[];
@@ -235,7 +245,7 @@ export interface User {
   email: string;
   role: UserRole;
   avatar?: string;
-  status: 'Active' | 'Disabled';
+  status: 'Active' | 'Inactive' | 'Disabled';
   lastLogin: string;
   department: string;
 }

@@ -76,6 +76,7 @@ interface SOCContextType {
   currentUser: User;
   switchUser: (role: UserRole) => void;
   users: User[];
+  addUser: (user: Omit<User, 'id' | 'lastLogin'>) => User;
 
   // Dynamic Metrics & Health
   metrics: TimeRangeMetrics;
@@ -174,21 +175,38 @@ export const SOCProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Current logged-in user profile
   const [currentUser, setCurrentUser] = useState<User>(INITIAL_USERS[0]);
-  const [users] = useState<User[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem('mor_soc_v4_users');
+    return saved ? JSON.parse(saved) : INITIAL_USERS;
+  });
+
+  const addUser = (userData: Omit<User, 'id' | 'lastLogin'>) => {
+    const newUser: User = {
+      ...userData,
+      id: `usr-${Date.now().toString().slice(-4)}`,
+      lastLogin: 'Never'
+    };
+    setUsers((prev) => [newUser, ...prev]);
+    return newUser;
+  };
+
+  useEffect(() => {
+    localStorage.setItem('mor_soc_v4_users', JSON.stringify(users));
+  }, [users]);
 
   // Core Data Collections (persisted in localStorage with fallback to default mock)
   const [events] = useState<SecurityEvent[]>(() => {
-    const saved = localStorage.getItem('mor_soc_v3_events');
+    const saved = localStorage.getItem('mor_soc_v4_events');
     return saved ? JSON.parse(saved) : INITIAL_SECURITY_EVENTS;
   });
 
   const [incidents, setIncidents] = useState<Incident[]>(() => {
-    const saved = localStorage.getItem('mor_soc_v3_incidents');
+    const saved = localStorage.getItem('mor_soc_v4_incidents');
     return saved ? JSON.parse(saved) : INITIAL_INCIDENTS;
   });
 
   const [alerts, setAlerts] = useState<Alert[]>(() => {
-    const saved = localStorage.getItem('mor_soc_v3_alerts');
+    const saved = localStorage.getItem('mor_soc_v4_alerts');
     return saved ? JSON.parse(saved) : INITIAL_ALERTS;
   });
 
@@ -236,11 +254,11 @@ export const SOCProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Sync state changes to localStorage
   useEffect(() => {
-    localStorage.setItem('mor_soc_v3_incidents', JSON.stringify(incidents));
+    localStorage.setItem('mor_soc_v4_incidents', JSON.stringify(incidents));
   }, [incidents]);
 
   useEffect(() => {
-    localStorage.setItem('mor_soc_v3_alerts', JSON.stringify(alerts));
+    localStorage.setItem('mor_soc_v4_alerts', JSON.stringify(alerts));
   }, [alerts]);
 
   useEffect(() => {
@@ -709,6 +727,7 @@ export const SOCProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         currentUser,
         switchUser,
         users,
+        addUser,
         metrics,
         healthMetrics,
         events,

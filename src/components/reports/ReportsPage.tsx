@@ -14,6 +14,7 @@ import {
   Flame,
   ArrowRight
 } from 'lucide-react';
+import morOfficialLogo from '../../assets/images/mor_official_logo.jpg';
 
 export const ReportsPage: React.FC = () => {
   const { metrics, healthMetrics, incidents, alerts, logSources, assets, timeRange } = useSOC();
@@ -49,21 +50,12 @@ export const ReportsPage: React.FC = () => {
       `Generated At: ${new Date().toISOString()}`,
       `Lead Analyst: Biks Biset (SOC Analyst)`,
       `Authorized Sign-off: Endale Aychew (Security Administrator)`,
-      `Classification: INTERNAL SOC DEMO REPORT`,
+      `Classification: INTERNAL SOC AUDIT REPORT`,
       '',
-      'Metric,Value,Unit',
-      `Total Events Ingested,${metrics.totalEvents},Events`,
-      `Critical Events,${metrics.criticalEvents},Events`,
-      `High Severity Events,${metrics.highEvents},Events`,
-      `Total Incidents,${incidents.length},Cases`,
-      `Log Sources Active,${healthMetrics.collectorsOnline}/${healthMetrics.collectorsTotal},Collectors`,
-      `Endpoint Coverage,${healthMetrics.agentsReporting}/${healthMetrics.agentsTotal},Endpoints`,
-      `Peak Ingestion Flow,${healthMetrics.ingestionRateEPS},EPS`,
-      '',
-      'Incident ID,Title,Severity,Status,Assigned Analyst,Detection Time',
+      'Incident ID,Title,Category,Severity,Status,Assigned Analyst,Detection Time,Affected Assets,Detection Source',
       ...incidents.map(
         (i) =>
-          `"${i.id}","${i.title.replace(/"/g, '""')}","${i.severity}","${i.status}","${i.assignedAnalyst}","${i.detectionTime}"`
+          `"${i.id}","${i.title.replace(/"/g, '""')}","${i.category || 'System'}","${i.severity.toUpperCase()}","${i.status.toUpperCase()}","${i.assignedAnalyst}","${i.detectionTime}","${i.affectedAssets.join('; ').replace(/"/g, '""')}","${i.source}"`
       )
     ].join('\n');
 
@@ -188,13 +180,13 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* Printable Report Dossier Preview */}
-      <div className="bg-white border border-sky-200/90 rounded-2xl p-6 sm:p-10 space-y-6 shadow-sm print:shadow-none print:border-none print:p-0">
+      <div id="report-dossier-print" className="bg-white border border-sky-200/90 rounded-2xl p-6 sm:p-10 space-y-6 shadow-sm print:shadow-none print:border-none print:p-0 print:m-0">
         {/* Official Header with Logo */}
         <div className="flex items-center justify-between border-b-2 border-[#0077c8] pb-5">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full border-2 border-[#0077c8] p-1 bg-white shadow-sm flex items-center justify-center shrink-0">
               <img
-                src="/src/assets/images/mor_official_logo.jpg"
+                src={morOfficialLogo}
                 alt="Ministry of Revenues Logo"
                 className="w-full h-full object-contain rounded-full"
               />
@@ -236,8 +228,8 @@ export const ReportsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 1: Executive KPI Summary */}
-        <div className="space-y-3">
+        {/* Section 1: Executive KPI Summary (Hidden in Print: print only Documented Security Incidents Audit) */}
+        <div className="print:hidden space-y-3">
           <h3 className="text-xs font-bold uppercase tracking-wider text-[#0077c8] border-b border-sky-100 pb-1.5">
             1. Executive Telemetry & Threat Metrics
           </h3>
@@ -277,8 +269,8 @@ export const ReportsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 2: Infrastructure Health */}
-        <div className="space-y-3">
+        {/* Section 2: Infrastructure Health (Hidden in Print: print only Documented Security Incidents Audit) */}
+        <div className="print:hidden space-y-3">
           <h3 className="text-xs font-bold uppercase tracking-wider text-[#0077c8] border-b border-sky-100 pb-1.5">
             2. Infrastructure & Ingestion Pipeline Health
           </h3>
@@ -308,10 +300,11 @@ export const ReportsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 3: Detailed Incident Case Log */}
+        {/* Section 3: Documented Security Incidents Audit (Primary Print Target) */}
         <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#0077c8] border-b border-sky-100 pb-1.5">
-            3. Documented Security Incidents Audit
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#0077c8] border-b border-sky-100 pb-1.5 flex items-center justify-between">
+            <span>Documented Security Incidents Audit</span>
+            <span className="hidden print:inline text-[10px] font-mono text-slate-500">Official Case Records: {incidents.length}</span>
           </h3>
 
           <div className="overflow-x-auto border border-sky-200 rounded-xl shadow-xs">
@@ -320,21 +313,27 @@ export const ReportsPage: React.FC = () => {
                 <tr className="bg-sky-50/70 border-b border-sky-200 text-slate-600 uppercase text-[10px] font-bold">
                   <th className="p-2.5">ID</th>
                   <th className="p-2.5">Incident Title</th>
+                  <th className="p-2.5">Category</th>
                   <th className="p-2.5">Severity</th>
                   <th className="p-2.5">Status</th>
+                  <th className="p-2.5">Detection Time</th>
                   <th className="p-2.5">Affected Assets</th>
+                  <th className="p-2.5">Detection Source</th>
                   <th className="p-2.5">Lead Analyst</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-sky-100">
                 {incidents.map((inc) => (
                   <tr key={inc.id} className="hover:bg-sky-50/40">
-                    <td className="p-2.5 text-[#0077c8] font-bold">{inc.id}</td>
+                    <td className="p-2.5 text-[#0077c8] font-bold whitespace-nowrap">{inc.id}</td>
                     <td className="p-2.5 font-sans font-semibold text-slate-800">{inc.title}</td>
-                    <td className="p-2.5 uppercase font-bold text-red-600">{inc.severity}</td>
-                    <td className="p-2.5 uppercase font-semibold text-slate-600">{inc.status}</td>
-                    <td className="p-2.5 text-slate-500">{inc.affectedAssets.join(', ')}</td>
-                    <td className="p-2.5 font-sans text-slate-800 font-medium">{inc.assignedAnalyst}</td>
+                    <td className="p-2.5 font-sans font-medium text-slate-600">{inc.category || 'System'}</td>
+                    <td className="p-2.5 uppercase font-bold text-red-600 whitespace-nowrap">{inc.severity}</td>
+                    <td className="p-2.5 uppercase font-semibold text-slate-600 whitespace-nowrap">{inc.status}</td>
+                    <td className="p-2.5 text-slate-500 whitespace-nowrap text-[11px]">{inc.detectionTime}</td>
+                    <td className="p-2.5 text-slate-600 font-mono text-[11px]">{inc.affectedAssets.join(', ')}</td>
+                    <td className="p-2.5 font-sans text-slate-500 text-[11px]">{inc.source}</td>
+                    <td className="p-2.5 font-sans text-slate-800 font-medium whitespace-nowrap">{inc.assignedAnalyst}</td>
                   </tr>
                 ))}
               </tbody>

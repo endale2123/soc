@@ -12,9 +12,9 @@ import {
   FileBarChart2,
   Settings,
   ChevronLeft,
-  ChevronRight,
-  RotateCcw
+  ChevronRight
 } from 'lucide-react';
+import morOfficialLogo from '../../assets/images/mor_official_logo.jpg';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -22,7 +22,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
-  const { activePage, setActivePage, incidents, alerts, resetDemoData } = useSOC();
+  const { activePage, setActivePage, incidents, alerts } = useSOC();
 
   const openIncidentsCount = incidents.filter(
     (i) => i.status === 'new' || i.status === 'investigating'
@@ -44,7 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
 
   return (
     <aside
-      className={`fixed top-0 bottom-0 left-0 z-30 flex flex-col bg-[#0b172a] text-slate-200 border-r border-[#1a2b47] transition-all duration-300 ease-in-out ${
+      className={`print:hidden fixed top-0 bottom-0 left-0 z-30 flex flex-col bg-[#0b172a] text-slate-200 border-r border-[#1a2b47] transition-all duration-300 ease-in-out ${
         collapsed ? 'w-18' : 'w-64'
       }`}
     >
@@ -54,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-10 h-10 rounded-full bg-white border-2 border-[#0077c8] p-0.5 overflow-hidden shrink-0 shadow-md shadow-[#0077c8]/20 flex items-center justify-center">
               <img
-                src="/src/assets/images/mor_official_logo.jpg"
+                src={morOfficialLogo}
                 alt="Ministry of Revenues Logo"
                 className="w-full h-full object-contain rounded-full"
               />
@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
         {collapsed && (
           <div className="w-9 h-9 rounded-full bg-white border-2 border-[#0077c8] p-0.5 overflow-hidden mx-auto flex items-center justify-center shadow-md">
             <img
-              src="/src/assets/images/mor_official_logo.jpg"
+              src={morOfficialLogo}
               alt="MoR"
               className="w-full h-full object-contain rounded-full"
             />
@@ -130,24 +130,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
           );
         })}
       </nav>
-
-      {/* Sidebar Footer: Reset Prototype Data */}
-      <div className="p-3 border-t border-[#1a2b47]">
-        <button
-          onClick={() => {
-            if (window.confirm('Reset all modified incidents, notes, and rules back to initial state?')) {
-              resetDemoData();
-            }
-          }}
-          className={`w-full flex items-center gap-2 px-2.5 py-2 text-[11px] font-semibold text-slate-400 hover:text-amber-400 hover:bg-[#15253e] rounded-lg transition-colors ${
-            collapsed ? 'justify-center' : ''
-          }`}
-          title="Reset Prototype Data"
-        >
-          <RotateCcw className="w-3.5 h-3.5 shrink-0" />
-          {!collapsed && <span>Reset Prototype State</span>}
-        </button>
-      </div>
     </aside>
   );
 };
