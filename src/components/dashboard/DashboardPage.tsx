@@ -837,7 +837,7 @@ export const DashboardPage: React.FC = () => {
               </span>
               <span className="text-xs text-slate-500">/ {healthMetrics.collectorsTotal} online</span>
             </div>
-            <span className="text-[10px] text-amber-600 font-semibold mt-0.5 block">1 Offline (Mekelle)</span>
+            <span className="text-[10px] text-amber-600 font-semibold mt-0.5 block">1 Offline </span>
           </div>
 
           {/* Health Card 3: Agents Reporting */}

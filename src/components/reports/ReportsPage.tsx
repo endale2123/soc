@@ -169,11 +169,18 @@ export const ReportsPage: React.FC = () => {
               className="w-full bg-[#f8fbff] border border-sky-200 rounded-xl p-2.5 text-slate-800 font-medium focus:outline-hidden focus:border-[#0077c8]"
             >
               <option value="ALL">All Monitored Sources</option>
-              {logSources.map((ls) => (
-                <option key={ls.id} value={ls.name}>
-                  {ls.name} ({ls.type})
-                </option>
-              ))}
+              {logSources
+                .filter(
+                  (ls) =>
+                    !ls.name.toLowerCase().includes('mekelle') &&
+                    !ls.name.toLowerCase().includes('dire dawa') &&
+                    !ls.name.toLowerCase().includes('dradwa')
+                )
+                .map((ls) => (
+                  <option key={ls.id} value={ls.name}>
+                    {ls.name} ({ls.type})
+                  </option>
+                ))}
             </select>
           </div>
         </div>
