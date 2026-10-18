@@ -224,11 +224,11 @@ export const IncidentsPage: React.FC = () => {
   const criticalCount = incidents.filter((i) => i.severity === 'critical').length;
   const highCount = incidents.filter((i) => i.severity === 'high').length;
   const investigatingCount = incidents.filter((i) => i.status === 'investigating').length;
-  const containedCount = incidents.filter((i) => i.status === 'contained' || i.status === 'resolved' || i.status === 'closed').length;
+  const resolvedOrClosedCount = incidents.filter((i) => i.status === 'resolved' || i.status === 'closed').length;
 
   return (
     <div className="space-y-6">
-      {/* Header & New Incident Action */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-sky-200/80">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
@@ -239,14 +239,6 @@ export const IncidentsPage: React.FC = () => {
             Documented cybersecurity investigations, threat containment playbooks, forensic evidence, and resolution audit trails.
           </p>
         </div>
-
-        <button
-          onClick={() => setCreateModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2 bg-[#0077c8] hover:bg-[#0066b3] text-white text-xs font-bold rounded-xl shadow-xs transition-all self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          Create Security Incident
-        </button>
       </div>
 
       {/* KPI Summary Cards */}
@@ -286,12 +278,12 @@ export const IncidentsPage: React.FC = () => {
 
         <div className="bg-white border border-emerald-200/80 rounded-2xl p-4 shadow-xs bg-emerald-50/20">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">Contained / Closed</span>
+            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">Resolved / Closed</span>
             <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 text-2xl font-black font-mono text-emerald-700">{containedCount}</div>
+          <div className="mt-2 text-2xl font-black font-mono text-emerald-700">{resolvedOrClosedCount}</div>
           <p className="text-[10px] text-emerald-700/80 font-medium mt-0.5">Threat neutralized or remediated</p>
         </div>
       </div>
@@ -338,7 +330,6 @@ export const IncidentsPage: React.FC = () => {
             <option value="ALL">All Statuses</option>
             <option value="new">New</option>
             <option value="investigating">Investigating</option>
-            <option value="contained">Contained</option>
             <option value="resolved">Resolved</option>
             <option value="closed">Closed</option>
           </select>
@@ -564,7 +555,6 @@ export const IncidentsPage: React.FC = () => {
                       >
                         <option value="new">Status: NEW</option>
                         <option value="investigating">Status: INVESTIGATING</option>
-                        <option value="contained">Status: CONTAINED</option>
                         <option value="resolved">Status: RESOLVED</option>
                       </select>
 

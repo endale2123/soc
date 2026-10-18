@@ -256,7 +256,6 @@ export const ThreatIntelPage: React.FC = () => {
                 <th className="py-3.5 px-3.5">Intelligence Source</th>
                 <th className="py-3.5 px-3.5">Last Observed</th>
                 <th className="py-3.5 px-3.5">Correlated Events</th>
-                <th className="py-3.5 px-3.5">Expiration</th>
                 <th className="py-3.5 px-3.5 text-right">Action</th>
               </tr>
             </thead>
@@ -304,9 +303,6 @@ export const ThreatIntelPage: React.FC = () => {
                   </td>
                   <td className="py-3 px-3.5 whitespace-nowrap text-slate-900 font-extrabold tabular-nums">
                     {item.relatedEventsCount}
-                  </td>
-                  <td className="py-3 px-3.5 text-slate-500 text-[11px] whitespace-nowrap">
-                    {item.expirationDate}
                   </td>
                   <td className="py-3 px-3.5 text-right whitespace-nowrap font-sans">
                     <button
