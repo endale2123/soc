@@ -178,7 +178,7 @@ export const SecurityEventsPage: React.FC = () => {
          
           <h2 className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
             <ShieldAlert className="w-5 h-5 text-[#0077c8]" />
-            Security Event Explorer
+            Log/Event Management
           </h2>
          
         </div>

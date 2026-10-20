@@ -567,14 +567,14 @@ export const DashboardPage: React.FC = () => {
         <div className="bg-white border border-sky-200/80 rounded-2xl p-5 flex flex-col shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Security Events by Source</h3>
+              <h3 className="text-sm font-bold text-slate-900">Log/Event Management by Source</h3>
               <p className="text-xs text-slate-500">Click a source to inspect raw telemetry</p>
             </div>
             <button
               onClick={() => setActivePage('log-management')}
               className="text-xs font-semibold text-[#0077c8] hover:underline flex items-center gap-1"
             >
-              Log Sources <ExternalLink className="w-3 h-3" />
+              Collector Management <ExternalLink className="w-3 h-3" />
             </button>
           </div>
 

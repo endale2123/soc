@@ -31,11 +31,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
 
   const navItems: { id: PageId; label: string; icon: React.FC<{ className?: string }>; badge?: number; badgeColor?: string }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'events', label: 'Security Events', icon: ShieldAlert },
+    { id: 'events', label: 'Log/Event Management', icon: ShieldAlert },
     { id: 'incidents', label: 'Incidents', icon: Flame, badge: openIncidentsCount, badgeColor: 'bg-red-500 text-white' },
     { id: 'threat-intel', label: 'Threat Intelligence', icon: Binary },
     { id: 'alerts', label: 'Alerts', icon: BellRing, badge: newAlertsCount, badgeColor: 'bg-amber-400 text-slate-950 font-bold' },
-    { id: 'log-management', label: 'Log Management', icon: ScrollText },
+    { id: 'log-management', label: 'Collector Management', icon: ScrollText },
     { id: 'assets', label: 'Assets & Endpoints', icon: Server },
     { id: 'network', label: 'Network Monitoring', icon: Network },
     { id: 'reports', label: 'Reports', icon: FileBarChart2 },

@@ -115,7 +115,7 @@ export const LogManagementPage: React.FC = () => {
          
           <h2 className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
             <ScrollText className="w-5 h-5 text-[#0077c8]" />
-            Centralized Log Source & Collector Management
+            Collector Management
           </h2>
          
         </div>
