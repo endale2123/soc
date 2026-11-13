@@ -6,7 +6,7 @@ export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
 export type IncidentStatus = 'new' | 'investigating' | 'contained' | 'resolved' | 'closed';
 
-export type AlertStatus = 'new' | 'acknowledged' | 'assigned' | 'investigating' | 'linked' | 'false_positive';
+export type AlertStatus = 'new' | 'acknowledged' | 'assigned' | 'investigating' | 'linked' | 'resolved' | 'false_positive';
 
 export type SourceStatus = 'healthy' | 'delayed' | 'offline' | 'parsing_error';
 
@@ -166,6 +166,7 @@ export interface Alert {
 
 export interface DetectionRule {
   id: string;
+  ruleKey?: string | null;
   name: string;
   description: string;
   severity: Severity;
@@ -175,6 +176,7 @@ export interface DetectionRule {
   enabled: boolean;
   lastTriggered: string;
   timeWindowMinutes: number;
+  thresholdCount?: number;
   investigationGuidance: string;
   sampleTestPayload?: string;
 }

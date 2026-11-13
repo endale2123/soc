@@ -33,6 +33,7 @@ export const AlertsPage: React.FC = () => {
     acknowledgeAlert,
     assignAlert,
     markAlertFalsePositive,
+    resolveAlert,
     escalateAlertToIncident,
     linkAlertToIncident,
     createIncident,
@@ -40,7 +41,8 @@ export const AlertsPage: React.FC = () => {
     currentUser,
     users,
     setActivePage,
-    setSelectedIncidentId
+    setSelectedIncidentId,
+    dataMode
   } = useSOC();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,9 +149,19 @@ export const AlertsPage: React.FC = () => {
     setCreateIncidentModalOpen(true);
   };
 
-  const handleConfirmCreateIncident = (e: React.FormEvent) => {
+  const handleConfirmCreateIncident = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!createFromAlert) return;
+
+    if (dataMode === 'live') {
+      const created = await escalateAlertToIncident(createFromAlert.id);
+      setCreateIncidentModalOpen(false);
+      setCreateFromAlert(null);
+      setSelectedAlertId(null);
+      setSelectedIncidentId(created.id);
+      setActivePage('incidents');
+      return;
+    }
 
     const created = createIncident({
       title: newIncTitle.trim(),
@@ -165,7 +177,6 @@ export const AlertsPage: React.FC = () => {
       relatedAlertIds: [createFromAlert.id]
     });
 
-    // Link alert
     linkAlertToIncident(createFromAlert.id, created.id);
 
     setCreateIncidentModalOpen(false);
@@ -246,6 +257,7 @@ export const AlertsPage: React.FC = () => {
             <option value="assigned">Assigned</option>
             <option value="investigating">Investigating</option>
             <option value="linked">Linked to Incident</option>
+            <option value="resolved">Resolved</option>
             <option value="false_positive">False Positive</option>
           </select>
         </div>
@@ -584,6 +596,17 @@ export const AlertsPage: React.FC = () => {
                     className="px-3.5 py-1.5 bg-white hover:bg-sky-50 text-slate-800 border border-sky-200 rounded-xl text-xs font-bold shadow-2xs"
                   >
                     Acknowledge
+                  </button>
+                )}
+
+                {selectedAlert.status !== 'false_positive' && selectedAlert.status !== 'resolved' && (
+                  <button
+                    onClick={async () => {
+                      await resolveAlert(selectedAlert.id, 'Resolved by analyst from Alerts Console');
+                    }}
+                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-2xs"
+                  >
+                    Resolve Alert
                   </button>
                 )}
 

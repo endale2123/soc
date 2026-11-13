@@ -12,7 +12,10 @@ import {
   FileBarChart2,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Monitor,
+  FileCode2,
+  KeyRound
 } from 'lucide-react';
 import morOfficialLogo from '../../assets/images/mor_official_logo.jpg';
 
@@ -22,20 +25,24 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
-  const { activePage, setActivePage, incidents, alerts } = useSOC();
+  const { activePage, setActivePage, incidents, alerts, endpoints } = useSOC();
 
   const openIncidentsCount = incidents.filter(
     (i) => i.status === 'new' || i.status === 'investigating'
   ).length;
   const newAlertsCount = alerts.filter((a) => a.status === 'new').length;
+  const onlineEndpointsCount = endpoints.filter((e) => e.status === 'Online').length;
 
   const navItems: { id: PageId; label: string; icon: React.FC<{ className?: string }>; badge?: number; badgeColor?: string }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'events', label: 'Log/Event Management', icon: ShieldAlert },
+    { id: 'windows-events', label: 'Windows Events', icon: FileCode2 },
     { id: 'incidents', label: 'Incidents', icon: Flame, badge: openIncidentsCount, badgeColor: 'bg-red-500 text-white' },
     { id: 'threat-intel', label: 'Threat Intelligence', icon: Binary },
     { id: 'alerts', label: 'Alerts', icon: BellRing, badge: newAlertsCount, badgeColor: 'bg-amber-400 text-slate-950 font-bold' },
     { id: 'log-management', label: 'Collector Management', icon: ScrollText },
+    { id: 'endpoints', label: 'Endpoint Management', icon: Monitor, badge: onlineEndpointsCount, badgeColor: 'bg-emerald-500 text-white' },
+    { id: 'agent-deployment', label: 'Agent Deployment', icon: KeyRound },
     { id: 'assets', label: 'Assets & Endpoints', icon: Server },
     { id: 'network', label: 'Network Monitoring', icon: Network },
     { id: 'reports', label: 'Reports', icon: FileBarChart2 },
@@ -95,7 +102,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
       <nav className="flex-1 px-2.5 py-4 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activePage === item.id;
+          const isActive =
+            activePage === item.id ||
+            (item.id === 'endpoints' && activePage === 'endpoint-details');
           return (
             <button
               key={item.id}

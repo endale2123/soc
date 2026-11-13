@@ -47,7 +47,9 @@ export const DashboardPage: React.FC = () => {
     drillDownToIncidents,
     setSelectedIncidentId,
     setSelectedAlertId,
-    setActivePage
+    setActivePage,
+    dataMode,
+    dashboardKpis
   } = useSOC();
 
   // Visibility toggle state for the 3 line series in Events Over Time
@@ -223,6 +225,82 @@ export const DashboardPage: React.FC = () => {
           <p className="mt-2 text-[11px] text-slate-500 font-medium">Active investigation cases opened</p>
         </div>
       </div>
+
+      {/* Live Backend Endpoint & Windows Telemetry Strip (Live Production Mode) */}
+      {dataMode === 'live' && dashboardKpis && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div
+            onClick={() => setActivePage('alerts')}
+            className="bg-white border border-sky-200/80 hover:border-[#0077c8] rounded-xl p-3.5 cursor-pointer shadow-xs transition-all"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+              Active Alerts
+            </span>
+            <span className="mt-1 text-xl font-extrabold font-mono text-amber-600 tabular-nums block">
+              {dashboardKpis.activeAlerts.toLocaleString()}
+            </span>
+          </div>
+
+          <div
+            onClick={() => setActivePage('endpoints')}
+            className="bg-white border border-sky-200/80 hover:border-[#0077c8] rounded-xl p-3.5 cursor-pointer shadow-xs transition-all"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+              Endpoints (On / Off)
+            </span>
+            <span className="mt-1 text-xl font-extrabold font-mono text-slate-900 tabular-nums block">
+              {dashboardKpis.totalEndpoints}{' '}
+              <span className="text-xs font-bold text-emerald-600">({dashboardKpis.onlineAgents}↑</span>{' '}
+              <span className="text-xs font-bold text-slate-400">{dashboardKpis.offlineAgents}↓)</span>
+            </span>
+          </div>
+
+          <div
+            onClick={() => setActivePage('windows-events')}
+            className="bg-white border border-sky-200/80 hover:border-[#0077c8] rounded-xl p-3.5 cursor-pointer shadow-xs transition-all"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+              Windows Events
+            </span>
+            <span className="mt-1 text-xl font-extrabold font-mono text-[#0077c8] tabular-nums block">
+              {dashboardKpis.windowsSecurityEvents.toLocaleString()}
+            </span>
+          </div>
+
+          <div
+            onClick={() => setActivePage('windows-events')}
+            className="bg-white border border-sky-200/80 hover:border-[#0077c8] rounded-xl p-3.5 cursor-pointer shadow-xs transition-all"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+              Failed Logins (4625)
+            </span>
+            <span className="mt-1 text-xl font-extrabold font-mono text-red-600 tabular-nums block">
+              {dashboardKpis.failedLoginAttempts.toLocaleString()}
+            </span>
+          </div>
+
+          <div
+            onClick={() => setActivePage('windows-events')}
+            className="bg-white border border-sky-200/80 hover:border-[#0077c8] rounded-xl p-3.5 cursor-pointer shadow-xs transition-all"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+              Suspicious Processes
+            </span>
+            <span className="mt-1 text-xl font-extrabold font-mono text-red-600 tabular-nums block">
+              {dashboardKpis.suspiciousProcessActivity.toLocaleString()}
+            </span>
+          </div>
+
+          <div className="bg-white border border-sky-200/80 rounded-xl p-3.5 shadow-xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+              Ingestion Rate
+            </span>
+            <span className="mt-1 text-xl font-extrabold font-mono text-emerald-700 tabular-nums block">
+              {dashboardKpis.eventsPerSecond} <span className="text-xs">EPS</span>
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Row: Events Over Time Line Chart & Event Types Donut */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -837,7 +915,9 @@ export const DashboardPage: React.FC = () => {
               </span>
               <span className="text-xs text-slate-500">/ {healthMetrics.collectorsTotal} online</span>
             </div>
-            <span className="text-[10px] text-amber-600 font-semibold mt-0.5 block">1 Offline </span>
+            <span className="text-[10px] text-amber-600 font-semibold mt-0.5 block">
+              {Math.max(0, healthMetrics.collectorsTotal - healthMetrics.collectorsOnline)} Offline
+            </span>
           </div>
 
           {/* Health Card 3: Agents Reporting */}
@@ -851,7 +931,11 @@ export const DashboardPage: React.FC = () => {
               </span>
               <span className="text-xs text-slate-500">/ {healthMetrics.agentsTotal.toLocaleString()}</span>
             </div>
-            <span className="text-[10px] text-emerald-600 font-semibold mt-0.5 block">99.7% Reporting</span>
+            <span className="text-[10px] text-emerald-600 font-semibold mt-0.5 block">
+              {healthMetrics.agentsTotal > 0
+                ? `${((healthMetrics.agentsReporting / healthMetrics.agentsTotal) * 100).toFixed(1)}% Reporting`
+                : '0 Enrolled'}
+            </span>
           </div>
 
           {/* Health Card 4: Ingestion Rate */}
@@ -865,7 +949,9 @@ export const DashboardPage: React.FC = () => {
               </span>
               <span className="text-xs text-slate-500">EPS</span>
             </div>
-            <span className="text-[10px] text-slate-500 mt-0.5 block">Peak: 22,400 EPS</span>
+            <span className="text-[10px] text-slate-500 mt-0.5 block">
+              {dataMode === 'live' ? 'PostgreSQL Live Stream' : 'Peak: 22,400 EPS'}
+            </span>
           </div>
 
           {/* Health Card 5: Storage Usage & Retention */}
@@ -889,7 +975,11 @@ export const DashboardPage: React.FC = () => {
             </span>
             <div className="mt-1.5 flex items-center gap-1.5 font-mono text-emerald-600 font-bold text-xs">
               <CheckCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>&lt; 2s ago</span>
+              <span className="truncate">
+                {dataMode === 'live'
+                  ? healthMetrics.lastSuccessfulIngestion.slice(0, 19)
+                  : '< 2s ago'}
+              </span>
             </div>
             <span className="text-[10px] text-slate-500 mt-0.5 block truncate">Stream Synced</span>
           </div>

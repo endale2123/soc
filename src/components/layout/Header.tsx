@@ -6,7 +6,9 @@ import {
   ShieldCheck,
   Clock,
   ExternalLink,
-  Shield
+  LogIn,
+  LogOut,
+  Radio
 } from 'lucide-react';
 import morOfficialLogo from '../../assets/images/mor_official_logo.jpg';
 
@@ -16,7 +18,11 @@ export const Header: React.FC = () => {
     currentUser,
     alerts,
     setSelectedAlertId,
-    setActivePage
+    setActivePage,
+    dataMode,
+    sseConnected,
+    setLoginModalOpen,
+    logoutSession
   } = useSOC();
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -72,8 +78,28 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Right: Clock, Alerts, and Logged-in User Profile */}
-      <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
+      {/* Right: Backend Mode, Clock, Alerts, and Logged-in User Profile */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Live Production vs Demo Fallback Indicator */}
+        {dataMode === 'live' ? (
+          <div
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-300/40 text-xs font-bold text-emerald-100"
+            title={sseConnected ? 'Connected to PostgreSQL + SSE Real-Time Stream' : 'Connected to PostgreSQL Backend'}
+          >
+            <Radio className={`w-3.5 h-3.5 text-emerald-300 ${sseConnected ? 'animate-pulse' : ''}`} />
+            <span>Live Production</span>
+          </div>
+        ) : (
+          <button
+            onClick={() => setLoginModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold shadow-xs transition-colors"
+            title="Currently viewing offline Demo Fallback. Sign in to connect to PostgreSQL backend."
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Demo Fallback ·</span> Sign In
+          </button>
+        )}
+
         {/* Real-time Organization Clock */}
         <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/20 text-xs sm:text-sm font-mono text-white tabular-nums shadow-xs">
           <Clock className="w-4 h-4 text-amber-300 shrink-0" />
@@ -114,44 +140,50 @@ export const Header: React.FC = () => {
               </div>
 
               <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
-                {alerts.slice(0, 5).map((alert) => (
-                  <div
-                    key={alert.id}
-                    onClick={() => {
-                      setSelectedAlertId(alert.id);
-                      setActivePage('alerts');
-                      setNotificationsOpen(false);
-                    }}
-                    className="p-3 hover:bg-sky-50/70 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-mono text-[#0077c8] font-bold">{alert.id}</span>
-                      <span
-                        className={`font-bold uppercase text-[10px] px-2 py-0.5 rounded ${
-                          alert.severity === 'critical'
-                            ? 'bg-red-50 text-red-700 border border-red-200'
-                            : alert.severity === 'high'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : alert.severity === 'medium'
-                            ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-                            : 'bg-blue-50 text-blue-700 border border-blue-200'
-                        }`}
-                      >
-                        {alert.severity}
-                      </span>
-                    </div>
-                    <p className="text-xs font-bold text-slate-800 line-clamp-1">{alert.title}</p>
-                    <p className="text-[11px] text-slate-500 font-mono mt-1">
-                      Asset: {alert.affectedAsset} · {alert.firstDetected.slice(11)}
-                    </p>
+                {alerts.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-slate-500">
+                    No active alerts recorded.
                   </div>
-                ))}
+                ) : (
+                  alerts.slice(0, 5).map((alert) => (
+                    <div
+                      key={alert.id}
+                      onClick={() => {
+                        setSelectedAlertId(alert.id);
+                        setActivePage('alerts');
+                        setNotificationsOpen(false);
+                      }}
+                      className="p-3 hover:bg-sky-50/70 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="font-mono text-[#0077c8] font-bold">{alert.id}</span>
+                        <span
+                          className={`font-bold uppercase text-[10px] px-2 py-0.5 rounded ${
+                            alert.severity === 'critical'
+                              ? 'bg-red-50 text-red-700 border border-red-200'
+                              : alert.severity === 'high'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : alert.severity === 'medium'
+                              ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                              : 'bg-blue-50 text-blue-700 border border-blue-200'
+                          }`}
+                        >
+                          {alert.severity}
+                        </span>
+                      </div>
+                      <p className="text-xs font-bold text-slate-800 line-clamp-1">{alert.title}</p>
+                      <p className="text-[11px] text-slate-500 font-mono mt-1">
+                        Asset: {alert.affectedAsset} · {alert.firstDetected.slice(11)}
+                      </p>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
         </div>
 
-        {/* User Profile Menu (Switch User option removed as requested) */}
+        {/* User Profile Menu */}
         <div className="relative" ref={userMenuRef}>
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -177,9 +209,10 @@ export const Header: React.FC = () => {
 
           {userMenuOpen && (
             <div className="absolute right-0 mt-2 w-80 bg-white border border-sky-200 rounded-2xl shadow-2xl py-2 z-50 text-slate-800 animate-in fade-in slide-in-from-top-1 duration-150">
-              {/* Authenticated Profile Info */}
               <div className="px-4 py-3 border-b border-slate-100 bg-sky-50/50">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#0077c8]">Authenticated Profile</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#0077c8]">
+                  {dataMode === 'live' ? 'Authenticated Backend Session' : 'Offline Demo Profile'}
+                </p>
                 <p className="text-sm font-bold text-slate-900 mt-1">{currentUser.name}</p>
                 <p className="text-xs text-[#0066b3] font-mono mt-0.5">{currentUser.email}</p>
                 <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 pt-2 border-t border-sky-100">
@@ -190,8 +223,7 @@ export const Header: React.FC = () => {
                 </div>
               </div>
 
-              {/* Security & Permissions Link */}
-              <div className="px-3 py-2">
+              <div className="px-3 py-2 space-y-1">
                 <button
                   onClick={() => {
                     setActivePage('settings');
@@ -202,6 +234,30 @@ export const Header: React.FC = () => {
                   <ShieldCheck className="w-4 h-4 text-[#0077c8] shrink-0" />
                   <span>View RBAC Roles & Permissions</span>
                 </button>
+
+                {dataMode === 'live' ? (
+                  <button
+                    onClick={async () => {
+                      setUserMenuOpen(false);
+                      await logoutSession();
+                    }}
+                    className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-red-700 hover:bg-red-50 flex items-center gap-2.5 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 text-red-600 shrink-0" />
+                    <span>Sign Out of Live Backend</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      setLoginModalOpen(true);
+                    }}
+                    className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-[#0077c8] hover:bg-sky-50 flex items-center gap-2.5 transition-colors"
+                  >
+                    <LogIn className="w-4 h-4 text-[#0077c8] shrink-0" />
+                    <span>Sign In with SOC Credentials</span>
+                  </button>
+                )}
               </div>
             </div>
           )}

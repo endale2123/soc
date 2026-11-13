@@ -24,7 +24,9 @@ export const SettingsPage: React.FC = () => {
     currentUser,
     addUser,
     auditLogs,
-    addAuditLog
+    addAuditLog,
+    dataMode,
+    permissions
   } = useSOC();
 
   const [activeTab, setActiveTab] = useState<
@@ -35,9 +37,12 @@ export const SettingsPage: React.FC = () => {
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserPassword, setNewUserPassword] = useState('');
   const [newUserRole, setNewUserRole] = useState<UserRole>('SOC Analyst');
   const [newUserDepartment, setNewUserDepartment] = useState('Directorate of Cybersecurity');
   const [newUserStatus, setNewUserStatus] = useState<'Active' | 'Inactive'>('Active');
+  const [userFormError, setUserFormError] = useState<string | null>(null);
+  const [savingUser, setSavingUser] = useState(false);
 
   // General Settings state
   const [orgName, setOrgName] = useState('Ministry of Revenues (የገቢዎች ሚኒስቴር)');
@@ -48,23 +53,37 @@ export const SettingsPage: React.FC = () => {
   // Audit Search
   const [auditSearch, setAuditSearch] = useState('');
 
-  const handleAddUserSubmit = (e: React.FormEvent) => {
+  const handleAddUserSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUserFormError(null);
     if (!newUserName.trim() || !newUserEmail.trim()) {
-      alert('Please provide full name and corporate email address.');
+      setUserFormError('Please provide full name and corporate email address.');
       return;
     }
-    addUser({
-      name: newUserName.trim(),
-      email: newUserEmail.trim(),
-      role: newUserRole,
-      department: newUserDepartment.trim(),
-      status: newUserStatus
-    });
-    setNewUserName('');
-    setNewUserEmail('');
-    setNewUserRole('SOC Analyst');
-    setAddUserModalOpen(false);
+    if (dataMode === 'live' && newUserPassword.length < 8) {
+      setUserFormError('Password must be at least 8 characters for live accounts.');
+      return;
+    }
+    setSavingUser(true);
+    try {
+      await addUser({
+        name: newUserName.trim(),
+        email: newUserEmail.trim(),
+        password: newUserPassword || undefined,
+        role: newUserRole,
+        department: newUserDepartment.trim(),
+        status: newUserStatus
+      });
+      setNewUserName('');
+      setNewUserEmail('');
+      setNewUserPassword('');
+      setNewUserRole('SOC Analyst');
+      setAddUserModalOpen(false);
+    } catch (err) {
+      setUserFormError(err instanceof Error ? err.message : 'Failed to create user.');
+    } finally {
+      setSavingUser(false);
+    }
   };
 
   const handleSaveGeneralSettings = (e: React.FormEvent) => {
@@ -139,13 +158,18 @@ export const SettingsPage: React.FC = () => {
                 Logged-in Profile: <strong className="text-[#0077c8] font-bold">{currentUser.name}</strong> ({currentUser.role})
               </span>
             </div>
-            <button
-              onClick={() => setAddUserModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#0077c8] hover:bg-[#0066b3] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 self-start sm:self-auto"
-            >
-              <UserPlus className="w-4 h-4" />
-              Add New User
-            </button>
+            {(dataMode === 'demo' || permissions.canManageUsers) && (
+              <button
+                onClick={() => {
+                  setUserFormError(null);
+                  setAddUserModalOpen(true);
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-[#0077c8] hover:bg-[#0066b3] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 self-start sm:self-auto"
+              >
+                <UserPlus className="w-4 h-4" />
+                Add New User
+              </button>
+            )}
           </div>
 
           <div className="bg-white border border-sky-200/80 rounded-2xl overflow-hidden shadow-xs">
@@ -226,6 +250,12 @@ export const SettingsPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleAddUserSubmit} className="space-y-3.5 text-xs">
+              {userFormError && (
+                <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 font-medium">
+                  {userFormError}
+                </div>
+              )}
+
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Full Name</label>
                 <input
@@ -249,6 +279,21 @@ export const SettingsPage: React.FC = () => {
                   className="w-full bg-[#f8fbff] border border-sky-200 rounded-xl p-2.5 text-slate-900 font-mono focus:outline-hidden focus:border-[#0077c8]"
                 />
               </div>
+
+              {dataMode === 'live' && (
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Initial Password (min 8 chars)</label>
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    placeholder="Enter strong temporary password"
+                    value={newUserPassword}
+                    onChange={(e) => setNewUserPassword(e.target.value)}
+                    className="w-full bg-[#f8fbff] border border-sky-200 rounded-xl p-2.5 text-slate-900 focus:outline-hidden focus:border-[#0077c8]"
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Assign RBAC Security Role</label>
@@ -299,9 +344,10 @@ export const SettingsPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#0077c8] hover:bg-[#0066b3] text-white rounded-xl font-bold transition-all shadow-xs"
+                  disabled={savingUser}
+                  className="px-4 py-2 bg-[#0077c8] hover:bg-[#0066b3] disabled:opacity-60 text-white rounded-xl font-bold transition-all shadow-xs"
                 >
-                  Save & Assign Role
+                  {savingUser ? 'Provisioning...' : 'Save & Assign Role'}
                 </button>
               </div>
             </form>
